@@ -21,6 +21,7 @@ private:
     string namaPeminjam[MAX_PEMINJAM];
     int countBukuDipinjam=0;
     string bukuDipinjam[MAX_PEMINJAM];
+    int kelompokBukuDipinjam[MAX_PEMINJAM];
 
     int denda;
 public:
@@ -101,6 +102,7 @@ void Perpustakaan::cariBuku() {
         for(int i=0 ; i < jmlBukuPendidikan ; i++){
             if(bukuPendidikan[i].find(buku,0) != string::npos){
                 bukuDipinjam[countBukuDipinjam]=bukuPendidikan[i];
+                kelompokBukuDipinjam[countBukuDipinjam]=kelompok;
                 countBukuDipinjam++;
                 buku = bukuPendidikan[i];
                 for(int j=i ; j < jmlBukuPendidikan-1 ; j++){
@@ -115,6 +117,7 @@ void Perpustakaan::cariBuku() {
         for(int i=0 ; i < jmlBukuHiburan ; i++){
             if(bukuHiburan[i].find(buku,0) != string::npos){
                 bukuDipinjam[countBukuDipinjam]=bukuHiburan[i];
+                kelompokBukuDipinjam[countBukuDipinjam]=kelompok;
                 countBukuDipinjam++;
                 buku = bukuHiburan[i];
                 for(int j=i ; j < jmlBukuHiburan-1 ; j++){
@@ -209,6 +212,10 @@ void Perpustakaan::pengembalian() {
             if(namaPeminjam[i].find(nama) != string::npos) {
                 cout<<"Nama peminjam\t: "<<namaPeminjam[i]<<endl
                     <<"Buku yang dipinjam\t: "<<bukuDipinjam[i]<<endl;
+                pushBuku(kelompokBukuDipinjam[i],bukuDipinjam[i]);
+                sortBuku();
+                countBukuDipinjam--;
+                countPeminjam--;
                 found = true;
             }
         }
