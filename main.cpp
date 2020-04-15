@@ -2,7 +2,7 @@
 #include <string>
 #include <bits/stdc++.h>
 using namespace std;
-#define MAX 3
+#define MAX 5
 #define MAX_PEMINJAM 100
 
 char huruf[]="ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -29,7 +29,7 @@ public:
     void printBuku();
 
     void pinjamBuku();
-    bool cariBuku(int kelompok,string *buku);
+    void cariBuku();
     void pushPeminjam();
     void popPeminjam();
     void pengembalian();
@@ -86,39 +86,70 @@ void Perpustakaan::pushBuku(int kelompok,string buku) {
     }
 }
 
-bool Perpustakaan::cariBuku(int kelompok,string *buku) {
-    string book = *buku;
+void Perpustakaan::cariBuku() {
+    bool found=false;
+    int kelompok;
+    string buku;
+    cout<<"Kelompok\n1. Pendidikan\n2. Hiburan\n\nPilih : ";
+    cin>>kelompok;
+    cin.get();
+    cout<<"\nMasukan Judul Buku\t: ";
+    getline(cin,buku);
+    transform(buku.begin() , buku.end() , buku.begin() , ::toupper);
+
     if(kelompok==1){
-        for(int i=0 ; i <= jmlBukuPendidikan ; i++){
-            if(bukuPendidikan[i].find(book,0) != string::npos){
+        for(int i=0 ; i < jmlBukuPendidikan ; i++){
+            if(bukuPendidikan[i].find(buku,0) != string::npos){
                 bukuDipinjam[countBukuDipinjam]=bukuPendidikan[i];
                 countBukuDipinjam++;
-                *buku = bukuPendidikan[i];
-                for(int j=i ; j < jmlBukuPendidikan ; j++){
+                buku = bukuPendidikan[i];
+                for(int j=i ; j < jmlBukuPendidikan-1 ; j++){
                     bukuPendidikan[j]=bukuPendidikan[j+1];
                 }
                 jmlBukuPendidikan--;
-                return true;
+                found = true;
             }
         }
-        cout<<"Tidak dapat menemukan judul buku :((\n\nMasukan lagi...\n";
-        return false;
     }
     else {
-        for(int i=0 ; i <= jmlBukuHiburan ; i++){
-            if(bukuHiburan[i].find(book,0) != string::npos){
+        for(int i=0 ; i < jmlBukuHiburan ; i++){
+            if(bukuHiburan[i].find(buku,0) != string::npos){
                 bukuDipinjam[countBukuDipinjam]=bukuHiburan[i];
                 countBukuDipinjam++;
-                *buku = bukuHiburan[i];
-                for(int j=i ; j < jmlBukuHiburan ; j++){
+                buku = bukuHiburan[i];
+                for(int j=i ; j < jmlBukuHiburan-1 ; j++){
                     bukuHiburan[j]=bukuHiburan[j+1];
                 }
                 jmlBukuHiburan--;
-                return true;
+                found = true;
             }
         }
-        cout<<"Tidak dapat menemukan judul buku :((\nMasukan lagi...\n";
-        return false;
+    }
+
+    if(!found) {
+        cout<<"Tidak dapat menemukan judul buku :((\n\nMasukan lagi...\n";
+        cariBuku();
+    }
+    else{
+        cout<<"Buku ("<<buku<<") berhasil dipinjam"<<endl<<endl;
+        popPeminjam();
+    }
+}
+
+void Perpustakaan::pinjamBuku() {
+    cout<<"\n======================== Pinjam Buku ========================\n\n";
+    if(jmlAntrian == 0){
+        cout<<"Antrian masih kosong...\nSilahkan tambahkan antrian\n\n";
+        pushPeminjam();
+    }
+
+    if(jmlBukuHiburan==0 || jmlBukuPendidikan==0) cout<<"Buku kosong... :(\n";
+    else{
+        string buku;
+
+        cout << "Antrian sekarang\t: " << namaAntrian[0] << endl << endl;
+        cout<<"Cari buku...\n\n";
+        cariBuku();
     }
 }
 
@@ -141,45 +172,19 @@ void Perpustakaan::printBuku() {
     }
 }
 
-void Perpustakaan::pinjamBuku() {
-    cout<<"\n======================== Pinjam Buku ========================\n\n";
-    if(jmlAntrian == 0){
-        cout<<"Antrian masih kosong...\nSilahkan tambahkan antrian\n\n";
-        pushPeminjam();
-    }
-
-    if(jmlBukuHiburan==0 || jmlBukuPendidikan==0) cout<<"Buku kosong... :(\n";
-    else{
-        int kelompok;
-
-        cout << "Antrian sekarang\t: " << namaAntrian[0] << endl << endl;
-        cout<<"Cari buku...\n\n";
-        cout<<"Kelompok\n1. Pendidikan\n2. Hiburan\n\nPilih : ";
-        cin>>kelompok;
-        cin.get();
-        menu:
-        cout<<"\nMasukan Judul Buku\t: ";
-        string buku;
-        getline(cin,buku);
-        cout<<endl<<kelompok<<endl<<buku;
-        transform(buku.begin() , buku.end() , buku.begin() , ::toupper);
-        if(!cariBuku(kelompok,&buku)) goto menu;
-
-        cout<<"Buku ("<<buku<<") berhasil dipinjam"<<endl;
-        popPeminjam();
-    }
-}
-
 void Perpustakaan::pushPeminjam() {
     cout<<"\n======================== Tambah Antrian ========================\n\n";
-    string nama;
-    cout<<"Masukan nama\t: ";
-    getline(cin,nama);
-    namaAntrian[jmlAntrian] = nama;
-    jmlAntrian++;
-    namaPeminjam[countPeminjam] = nama;
-    countPeminjam++;
-    cout<<endl;
+    if(jmlAntrian>MAX-1) cout<<"Antrian Penuh...\n\n";
+    else{
+        string nama;
+        cout<<"Masukan nama\t: ";
+        getline(cin,nama);
+        namaAntrian[jmlAntrian] = nama;
+        jmlAntrian++;
+        namaPeminjam[countPeminjam] = nama;
+        countPeminjam++;
+        cout<<endl;
+    }
 }
 
 void Perpustakaan::popPeminjam() {
@@ -201,7 +206,7 @@ void Perpustakaan::pengembalian() {
         cout<<endl;
 
         for(int i=0 ; i<countPeminjam ; i++){
-            if(namaPeminjam[i].find(nama,0) != string::npos) {
+            if(namaPeminjam[i].find(nama) != string::npos) {
                 cout<<"Nama peminjam\t: "<<namaPeminjam[i]<<endl
                     <<"Buku yang dipinjam\t: "<<bukuDipinjam[i]<<endl;
                 found = true;
